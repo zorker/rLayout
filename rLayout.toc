@@ -1,0 +1,21 @@
+## Interface: 120005, 120007
+## Title: rLayout
+## Notes: Adjustments for the Blizzard default UI
+## Author: zork
+## Version: 12.3
+## Category: rMods
+## SavedVariables: rLayout_DB
+## IconTexture: Interface\AddOns\rLayout\assets\logo-64
+## X-DB-Version: 1
+
+rLayoutSettingsReloadButton.xml
+init.lua
+db.lua
+modules/chat.lua
+modules/darkmode.lua
+modules/spellalert.lua
+modules/statedriver.lua
+modules/tooltip.lua
+modules/vignette.lua
+optionspanel.lua
+events.lua
