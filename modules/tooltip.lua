@@ -1,20 +1,58 @@
 local A, L = ...
 
 ---------------------------------------------------------------------
+-- vars
+---------------------------------------------------------------------
+
+local borderColor       = { 0.60, 0.55, 0.50, 1 }
+local backgroundColor   = { 0.15, 0.14, 0.08, 1 }
+local textColor         = { 0.60, 0.55, 0.50, 1.00 }
+local guildColor        = { 0.90, 0.20, 0.90, 1.00 }
+local deadColor         = { 0.40, 0.40, 0.40, 1.00 }
+
+---------------------------------------------------------------------
+-- ForceCustomBorder(tooltip)
+---------------------------------------------------------------------
+
+local function ForceCustomBorder(tooltip)
+  if not tooltip or not tooltip.NineSlice then return end
+  local r,g,b = unpack(borderColor)
+  local _, unit = tooltip:GetUnit()
+  if issecretvalue(unit) then
+    tooltip.NineSlice:SetVertexColor(GameTooltipTextLeft1:GetTextColor())
+    tooltip.NineSlice.Center:SetVertexColor(unpack(backgroundColor))
+    return
+  end
+  if unit then
+    local isPlayer = UnitIsPlayer(unit)
+    if isPlayer then
+      local _, classFilename = UnitClass(unit)
+      local classColor = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[classFilename]
+      if classColor then
+        r, g, b = classColor.r, classColor.g, classColor.b
+      end
+    else
+      local reaction = UnitReaction(unit, "player")
+      if reaction and FACTION_BAR_COLORS[reaction] then
+        local factionColor = FACTION_BAR_COLORS[reaction]
+        if factionColor.GetRGB then
+          r, g, b = factionColor:GetRGB()
+        else
+          r, g, b = factionColor.r, factionColor.g, factionColor.b
+        end
+      end
+    end
+  end
+  tooltip.NineSlice:SetVertexColor(r,g,b)
+  tooltip.NineSlice.Center:SetVertexColor(unpack(backgroundColor))
+
+end
+
+---------------------------------------------------------------------
 -- LoadModuleTooltip()
 ---------------------------------------------------------------------
 
 local function LoadModuleTooltip()
-
-  ---------------------------------------------------------------------
-  -- vars
-  ---------------------------------------------------------------------
-
-  local borderColor       = { 0.60, 0.55, 0.50, 1 }
-  local backgroundColor   = { 0.15, 0.14, 0.08, 1 }
-  local textColor         = { 0.60, 0.55, 0.50, 1.00 }
-  local guildColor        = { 0.90, 0.20, 0.90, 1.00 }
-  local deadColor         = { 0.40, 0.40, 0.40, 1.00 }
 
   ---------------------------------------------------------------------
   -- GameTooltip.StatusBar
@@ -22,39 +60,6 @@ local function LoadModuleTooltip()
 
   GameTooltip.StatusBar:UnregisterAllEvents()
   GameTooltip.StatusBar:SetAlpha(0)
-
-  ---------------------------------------------------------------------
-  -- ForceCustomBorder(tooltip)
-  ---------------------------------------------------------------------
-
-  local function ForceCustomBorder(tooltip)
-    if tooltip and tooltip.NineSlice then
-      local r,g,b = unpack(borderColor)
-      local _, unit = tooltip:GetUnit()
-      if unit then
-        local isPlayer = UnitIsPlayer(unit)
-        if isPlayer then
-          local _, classFilename = UnitClass(unit)
-          local classColor = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[classFilename]
-          if classColor then
-            r, g, b = classColor.r, classColor.g, classColor.b
-          end
-        else
-          local reaction = UnitReaction(unit, "player")
-          if reaction and FACTION_BAR_COLORS[reaction] then
-            local factionColor = FACTION_BAR_COLORS[reaction]
-            if factionColor.GetRGB then
-              r, g, b = factionColor:GetRGB()
-            else
-              r, g, b = factionColor.r, factionColor.g, factionColor.b
-            end
-          end
-        end
-      end
-      tooltip.NineSlice:SetVertexColor(r,g,b)
-      tooltip.NineSlice.Center:SetVertexColor(unpack(backgroundColor))
-    end
-  end
 
   ---------------------------------------------------------------------
   -- ForceCustomBorder hooks
@@ -77,6 +82,20 @@ local function LoadModuleTooltip()
   TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(tooltip)
     if tooltip ~= GameTooltip then return end
     local _, unit = tooltip:GetUnit()
+    if issecretvalue(unit) then
+      local difficultyColor = GetCreatureDifficultyColor(UnitLevel("player"))
+      GameTooltipTextLeft2:SetFont(STANDARD_TEXT_FONT, 12, "SLUG")
+      GameTooltipTextLeft2:SetTextColor(difficultyColor.r,difficultyColor.g,difficultyColor.b)
+      local numLines = tooltip:NumLines()
+      for i = 3, numLines do
+        local leftLine = _G["GameTooltipTextLeft" .. i]
+        if leftLine then
+          leftLine:SetFont(STANDARD_TEXT_FONT, 12, "SLUG")
+          leftLine:SetTextColor(unpack(textColor))
+        end
+      end
+      return
+    end
     if not unit or not UnitExists(unit) then return end
     local headLine = GameTooltipTextLeft1
     if not headLine then return end
