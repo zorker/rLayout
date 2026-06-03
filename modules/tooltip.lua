@@ -16,36 +16,45 @@ local deadColor         = { 0.40, 0.40, 0.40, 1.00 }
 
 local function ForceCustomBorder(tooltip)
   if not tooltip or not tooltip.NineSlice then return end
-  local r,g,b = unpack(borderColor)
+  -- no GetUnit
+  if not tooltip.GetUnit then
+    tooltip.NineSlice:SetVertexColor(unpack(borderColor))
+    tooltip.NineSlice.Center:SetVertexColor(unpack(backgroundColor))
+    return
+  end
   local _, unit = tooltip:GetUnit()
+  -- secret unit
   if issecretvalue(unit) then
     tooltip.NineSlice:SetVertexColor(GameTooltipTextLeft1:GetTextColor())
     tooltip.NineSlice.Center:SetVertexColor(unpack(backgroundColor))
     return
   end
-  if unit then
-    local isPlayer = UnitIsPlayer(unit)
-    if isPlayer then
-      local _, classFilename = UnitClass(unit)
-      local classColor = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[classFilename]
-      if classColor then
-        r, g, b = classColor.r, classColor.g, classColor.b
-      end
-    else
-      local reaction = UnitReaction(unit, "player")
-      if reaction and FACTION_BAR_COLORS[reaction] then
-        local factionColor = FACTION_BAR_COLORS[reaction]
-        if factionColor.GetRGB then
-          r, g, b = factionColor:GetRGB()
-        else
-          r, g, b = factionColor.r, factionColor.g, factionColor.b
-        end
+  -- no unit
+  if not unit then
+    tooltip.NineSlice:SetVertexColor(unpack(borderColor))
+    tooltip.NineSlice.Center:SetVertexColor(unpack(backgroundColor))
+    return
+  end
+  local r,g,b = unpack(borderColor)
+  if UnitIsPlayer(unit) then
+    local _, className = UnitClass(unit)
+    local classColor = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[className]
+    if classColor then
+      r, g, b = classColor.r, classColor.g, classColor.b
+    end
+  else
+    local reaction = UnitReaction(unit, "player")
+    if reaction and FACTION_BAR_COLORS[reaction] then
+      local factionColor = FACTION_BAR_COLORS[reaction]
+      if factionColor.GetRGB then
+        r, g, b = factionColor:GetRGB()
+      else
+        r, g, b = factionColor.r, factionColor.g, factionColor.b
       end
     end
   end
   tooltip.NineSlice:SetVertexColor(r,g,b)
   tooltip.NineSlice.Center:SetVertexColor(unpack(backgroundColor))
-
 end
 
 ---------------------------------------------------------------------
