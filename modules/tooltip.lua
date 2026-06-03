@@ -10,6 +10,34 @@ local textColor         = { 0.60, 0.55, 0.50, 1.00 }
 local guildColor        = { 0.90, 0.20, 0.90, 1.00 }
 local deadColor         = { 0.40, 0.40, 0.40, 1.00 }
 
+local GameTooltip = GameTooltip
+
+---------------------------------------------------------------------
+-- GetClassOrReactionColor(unit)
+---------------------------------------------------------------------
+
+local function GetClassOrReactionColor(unit, fallbackColor)
+  local r, g, b = unpack(fallbackColor)
+  if UnitIsPlayer(unit) then
+    local _, className = UnitClass(unit)
+    local classColor = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[className]
+    if classColor then
+      r, g, b = classColor.r, classColor.g, classColor.b
+    end
+  else
+    local reaction = UnitReaction(unit, "player")
+    if reaction and FACTION_BAR_COLORS[reaction] then
+      local factionColor = FACTION_BAR_COLORS[reaction]
+      if factionColor.GetRGB then
+        r, g, b = factionColor:GetRGB()
+      else
+        r, g, b = factionColor.r, factionColor.g, factionColor.b
+      end
+    end
+  end
+  return r, g, b
+end
+
 ---------------------------------------------------------------------
 -- ForceCustomBorder(tooltip)
 ---------------------------------------------------------------------
@@ -35,25 +63,7 @@ local function ForceCustomBorder(tooltip)
     tooltip.NineSlice.Center:SetVertexColor(unpack(backgroundColor))
     return
   end
-  local r,g,b = unpack(borderColor)
-  if UnitIsPlayer(unit) then
-    local _, className = UnitClass(unit)
-    local classColor = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[className]
-    if classColor then
-      r, g, b = classColor.r, classColor.g, classColor.b
-    end
-  else
-    local reaction = UnitReaction(unit, "player")
-    if reaction and FACTION_BAR_COLORS[reaction] then
-      local factionColor = FACTION_BAR_COLORS[reaction]
-      if factionColor.GetRGB then
-        r, g, b = factionColor:GetRGB()
-      else
-        r, g, b = factionColor.r, factionColor.g, factionColor.b
-      end
-    end
-  end
-  tooltip.NineSlice:SetVertexColor(r,g,b)
+  tooltip.NineSlice:SetVertexColor(GetClassOrReactionColor(unit, borderColor))
   tooltip.NineSlice.Center:SetVertexColor(unpack(backgroundColor))
 end
 
@@ -91,10 +101,13 @@ local function LoadModuleTooltip()
   TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(tooltip)
     if tooltip ~= GameTooltip then return end
     local _, unit = tooltip:GetUnit()
+    -- secret unit
     if issecretvalue(unit) then
-      local difficultyColor = GetCreatureDifficultyColor(UnitLevel("player"))
-      GameTooltipTextLeft2:SetFont(STANDARD_TEXT_FONT, 12, "SLUG")
-      GameTooltipTextLeft2:SetTextColor(difficultyColor.r,difficultyColor.g,difficultyColor.b)
+      if GameTooltipTextLeft2 then
+        local difficultyColor = GetCreatureDifficultyColor(UnitLevel("player"))
+        GameTooltipTextLeft2:SetFont(STANDARD_TEXT_FONT, 12, "SLUG")
+        GameTooltipTextLeft2:SetTextColor(difficultyColor.r,difficultyColor.g,difficultyColor.b)
+      end
       local numLines = tooltip:NumLines()
       for i = 3, numLines do
         local leftLine = _G["GameTooltipTextLeft" .. i]
@@ -105,36 +118,16 @@ local function LoadModuleTooltip()
       end
       return
     end
-    if not unit or not UnitExists(unit) then return end
+    -- headLine
     local headLine = GameTooltipTextLeft1
-    if not headLine then return end
-    local r, g, b
-    local isPlayer = UnitIsPlayer(unit)
-    local unitGuild = nil
-    if isPlayer then
-      local _, classFilename = UnitClass(unit)
-      unitGuild = GetGuildInfo(unit)
-      if classFilename then
-        local classColor = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[classFilename]
-        if classColor then
-          r, g, b = classColor.r, classColor.g, classColor.b
-        end
-      end
+    if UnitIsPlayer(unit) then
+      local _, className = UnitClass(unit)
       if UnitIsAFK(unit) then
         tooltip:AppendText((" |cff%s<afk>|r"):format("00ffff"))
       end
-      headLine:SetText("|A:groupfinder-icon-class-"..classFilename:lower()..":15:15:0:0|a "..headLine:GetText())
+      headLine:SetText("|A:groupfinder-icon-class-"..className:lower()..":15:15:0:0|a "..headLine:GetText())
     else
-      local reaction = UnitReaction(unit, "player")
       local classification = UnitClassification(unit)
-      if reaction and FACTION_BAR_COLORS[reaction] then
-        local factionColor = FACTION_BAR_COLORS[reaction]
-        if factionColor.GetRGB then
-          r, g, b = factionColor:GetRGB()
-        else
-          r, g, b = factionColor.r, factionColor.g, factionColor.b
-        end
-      end
       if classification == "worldboss" or UnitLevel(unit) == -1 then
         headLine:SetText("|A:worldquest-icon-boss:15:15:0:0|a "..headLine:GetText())
       elseif classification == "rare" then
@@ -145,41 +138,27 @@ local function LoadModuleTooltip()
         headLine:SetText("|A:nameplates-icon-elite-gold:15:15:0:0|a "..headLine:GetText())
       end
     end
-
     headLine:SetFont(STANDARD_TEXT_FONT, 15, "SLUG")
     if UnitIsDeadOrGhost(unit) then
       headLine:SetTextColor(unpack(deadColor))
-    elseif r and g and b then
-      headLine:SetTextColor(r, g, b)
+    else
+      headLine:SetTextColor(GetClassOrReactionColor(unit, textColor))
     end
 
+    -- other lines
     local numLines = tooltip:NumLines()
     if not numLines or numLines < 2 then return end
-
     local level = UnitLevel(unit)
     local difficultyColor = GetCreatureDifficultyColor((level > 0) and level or 999)
-
-    local levelLine = nil
-    local npcGuild = false
-
-    if isPlayer then
-      levelLine = unitGuild and 3 or 2
-    else
-      levelLine = string.find(GameTooltipTextLeft2:GetText() or "empty", "%a%s%?%?") and 2 or
-                  string.find(GameTooltipTextLeft3:GetText() or "empty", "%a%s%?%?") and 3 or
-                  string.find(GameTooltipTextLeft2:GetText() or "empty", "%a%s%d") and 2 or
-                  string.find(GameTooltipTextLeft3:GetText() or "empty", "%a%s%d") and 3 or nil
-      if levelLine == 3 then
-        npcGuild = true
-      end
-    end
-
+    local levelLine = string.find(GameTooltipTextLeft3:GetText() or "empty", "%a%s%?%?") and 3 or
+                      string.find(GameTooltipTextLeft3:GetText() or "empty", "%a%s%d") and 3 or 2
     for i = 2, numLines do
       local leftLine = _G["GameTooltipTextLeft" .. i]
       if leftLine and i == levelLine then
         leftLine:SetFont(STANDARD_TEXT_FONT, 12, "SLUG")
         leftLine:SetTextColor(difficultyColor.r,difficultyColor.g,difficultyColor.b)
-      elseif leftLine and i == 2 and (unitGuild or npcGuild) then
+      --mark second line as guild line
+      elseif leftLine and i == 2 and levelLine == 3 then
         leftLine:SetText("<"..leftLine:GetText()..">")
         leftLine:SetFont(STANDARD_TEXT_FONT, 12, "SLUG")
         leftLine:SetTextColor(unpack(guildColor))
@@ -188,7 +167,6 @@ local function LoadModuleTooltip()
         leftLine:SetTextColor(unpack(textColor))
       end
     end
-
   end)
 
 end
