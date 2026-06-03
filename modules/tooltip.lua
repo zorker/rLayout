@@ -100,6 +100,7 @@ local function LoadModuleTooltip()
 
   TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(tooltip)
     if tooltip ~= GameTooltip then return end
+    if not tooltip.GetUnit then return end
     local _, unit = tooltip:GetUnit()
     -- secret unit
     if issecretvalue(unit) then
@@ -118,6 +119,7 @@ local function LoadModuleTooltip()
       end
       return
     end
+    if not unit then return end
     -- headLine
     local headLine = GameTooltipTextLeft1
     if UnitIsPlayer(unit) then
