@@ -124,9 +124,9 @@ local function LoadModuleTooltip()
     local headLine = GameTooltipTextLeft1
     if UnitIsPlayer(unit) then
       local _, className = UnitClass(unit)
-      if UnitIsAFK(unit) then
-        tooltip:AppendText((" |cff%s<afk>|r"):format("00ffff"))
-      end
+      --if UnitIsAFK(unit) then
+      --  tooltip:AppendText((" |cff%s<afk>|r"):format("00ffff"))
+      --end
       headLine:SetText("|A:groupfinder-icon-class-"..className:lower()..":15:15:0:0|a "..headLine:GetText())
     else
       local classification = UnitClassification(unit)
