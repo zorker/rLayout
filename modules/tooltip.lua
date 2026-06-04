@@ -45,7 +45,8 @@ end
 local function GetLine1Suffix(unit, leftText)
   local suffix = ""
   if UnitIsPlayer(unit) then
-    if issecretvalue(leftText) == false and UnitIsAFK(unit) then
+    local instanceName, instanceType = GetInstanceInfo()
+    if instanceType == "none" and issecretvalue(leftText) == false and UnitIsAFK(unit) then
       suffix = " |cff00ffff<afk>|r"
     end
   end
