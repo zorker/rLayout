@@ -22,7 +22,6 @@ local function LoadModuleVignette()
     "Rostrum of Transformation",
     "Witherbark Prisoner",
     "Glowing Moth",
-    "Misplaced Tome",
     "Leaf-wrapped Package"
   }
 
