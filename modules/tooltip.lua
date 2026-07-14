@@ -86,7 +86,7 @@ end
 ---------------------------------------------------------------------
 
 local function ForceCustomBorder(tooltip)
-  if not tooltip or not tooltip.NineSlice then return end
+  if not tooltip or not tooltip.NineSlice or not tooltip:IsVisible() then return end
   local unit = UnitExists("mouseover") and "mouseover" or nil
   if unit then
     tooltip.NineSlice:SetVertexColor(GetClassOrReactionColor(unit, borderColor))
