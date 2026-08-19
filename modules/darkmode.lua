@@ -176,33 +176,6 @@ local function LoadModuleDarkMode()
   ScenarioObjectiveTracker.Header.Text:SetTextColor(unpack(darkTextColor))
 
   ---------------------------------------------------------------------
-  -- TargetFrame buffs
-  ---------------------------------------------------------------------
-
-  hooksecurefunc("TargetFrame_UpdateBuffAnchor", function(self, aura, index, numDebuffs, anchorBuff, anchorIndex, size, offsetX, offsetY, mirrorVertically)
-    if aura.BuffBorder then
-      aura.BuffBorder:Show()
-      return
-    end
-    layer, sublayer = aura.Stealable:GetDrawLayer()
-    aura.BuffBorder = aura:CreateTexture(nil, layer, nil, sublayer-1)
-    aura.BuffBorder:SetPoint("TOPLEFT", aura.Icon, -1, 1)
-    aura.BuffBorder:SetPoint("BOTTOMRIGHT", aura.Icon, 1, -1)
-    aura.BuffBorder:SetTexture([[Interface\Buttons\UI-TempEnchant-Border]])
-    ApplyDarkMode(aura, aura.BuffBorder, darkAuraColor)
-  end)
-
-  ---------------------------------------------------------------------
-  -- TargetFrame debuffs
-  ---------------------------------------------------------------------
-
-  hooksecurefunc("TargetFrame_UpdateDebuffAnchor", function(self, aura, index, numBuffs, anchorBuff, anchorIndex, size, offsetX, offsetY, mirrorVertically)
-    if aura.BuffBorder then
-      aura.BuffBorder:Hide()
-    end
-  end)
-
-  ---------------------------------------------------------------------
   -- Action buttons
   ---------------------------------------------------------------------
 
