@@ -95,9 +95,9 @@ local function LoadModuleChat()
     QuickJoinToastButton:SetClampedToScreen(true)
     QuickJoinToastButton:SetClampRectInsets(unpack(quickJoinToastButtonClamp))
     QuickJoinToastButton:SetAlpha(quickJoinToastButtonAlpha)
-    ChatFrame1:ClearAllPoints()
-    ChatFrame1:SetPoint(unpack(chatPosition))
-    hooksecurefunc(ChatFrame1, "SetPoint", ApplyPoint)
+    --ChatFrame1:ClearAllPoints()
+    --ChatFrame1:SetPoint(unpack(chatPosition))
+    --hooksecurefunc(ChatFrame1, "SetPoint", ApplyPoint)
     hooksecurefunc("FCF_OpenTemporaryWindow", SkinTempChat)
   end
 
