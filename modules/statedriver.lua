@@ -1,19 +1,31 @@
 local A, L = ...
 
+local addedRoleSets = {}
+
 ---------------------------------------------------------------------
--- UpdateRoleSet(frame, show)
+-- AddRoleset(frame, name)
 ---------------------------------------------------------------------
 
-local function UpdateRoleSet(frame, show)
-  if not frame then return end
-  if frame:IsProtected() and InCombatLockdown() then return end
-  if show then
-    frame:AddRoleset("alwaysIncluded")
-    frame:RemoveRoleset("alwaysBlocked")
-  else
-    frame:AddRoleset("alwaysBlocked")
-    frame:RemoveRoleset("alwaysIncluded")
+local function AddRoleset(frame, name)
+  frame:AddRoleset(name)
+  UIModeUtil.RegisterMode(name.."Scene", {
+    rolesetBlocklist = {
+      name,
+    },
+  })
+  addedRoleSets[name] = true
+end
+
+---------------------------------------------------------------------
+-- GetRolesetSceneName(frame)
+---------------------------------------------------------------------
+
+local function GetRolesetSceneName(frame)
+  local name = L.name..frame:GetName()
+  if not addedRoleSets[name] then
+    AddRoleset(frame, name)
   end
+  return name.."Scene"
 end
 
 ---------------------------------------------------------------------
@@ -45,58 +57,55 @@ local function EvaluateState()
     -- 1. MainActionBar
     -- Macro: [petbattle][vehicleui][overridebar] hide; [combat][mod:shift][@target,exists,nodead][@vehicle,exists][shapeshift][possessbar] show; hide
     ---------------------------------------------------------------------------
-    UpdateRoleSet(MainActionBar, not otherUI and (inCombat or isShiftDown or validTarget or vehicleExists or tempShapeshift or possessBar))
+    UIModeUtil.SetModeActive(GetRolesetSceneName(MainActionBar), not (not otherUI and (inCombat or isShiftDown or validTarget or vehicleExists or tempShapeshift or possessBar)))
 
     ---------------------------------------------------------------------------
     -- 2. StanceBar
     -- Macro: [mod:alt] show; hide
     ---------------------------------------------------------------------------
-    UpdateRoleSet(StanceBar, isAltDown)
+    UIModeUtil.SetModeActive(GetRolesetSceneName(StanceBar), not (isAltDown))
 
     ---------------------------------------------------------------------------
     -- 3. BagsBar
     -- Macro: [mod:ctrl] show; hide
     ---------------------------------------------------------------------------
-    UpdateRoleSet(BagsBar, isCtrlDown)
+    UIModeUtil.SetModeActive(GetRolesetSceneName(BagsBar), not (isCtrlDown))
 
     ---------------------------------------------------------------------------
     -- 4. MicroMenuContainer
     -- Macro: [mod:ctrl] show; hide
     ---------------------------------------------------------------------------
-    UpdateRoleSet(MicroMenuContainer, isCtrlDown)
+    UIModeUtil.SetModeActive(GetRolesetSceneName(MicroMenuContainer), not (isCtrlDown))
 
     ---------------------------------------------------------------------------
     -- 5. MicroButtonAndBagsBar
     -- Macro: [mod:ctrl] show; hide
     ---------------------------------------------------------------------------
-    UpdateRoleSet(MicroButtonAndBagsBar, isCtrlDown)
+    UIModeUtil.SetModeActive(GetRolesetSceneName(MicroButtonAndBagsBar), not (isCtrlDown))
 
     ---------------------------------------------------------------------------
     -- 6. MainStatusTrackingBarContainer
     -- Macro: [mod:alt] show; hide
     ---------------------------------------------------------------------------
-    UpdateRoleSet(MainStatusTrackingBarContainer, isAltDown)
+    UIModeUtil.SetModeActive(GetRolesetSceneName(MainStatusTrackingBarContainer), not (isAltDown))
 
     ---------------------------------------------------------------------------
     -- 7. PetActionBar
     -- Macro: [petbattle][vehicleui][overridebar] hide; [mod:shift] show; hide
     ---------------------------------------------------------------------------
-    UpdateRoleSet(PetActionBar, not otherUI and isShiftDown)
+    UIModeUtil.SetModeActive(GetRolesetSceneName(PetActionBar), not (not otherUI and isShiftDown))
 
     ---------------------------------------------------------------------------
     -- 8. MultiBarBottomLeft
     -- Macro: [petbattle][vehicleui][overridebar] hide; [combat][mod:shift] show; hide
     ---------------------------------------------------------------------------
-    UpdateRoleSet(MultiBarBottomLeft, not otherUI and (inCombat or isShiftDown))
+    UIModeUtil.SetModeActive(GetRolesetSceneName(MultiBarBottomLeft), not (not otherUI and (inCombat or isShiftDown)))
 
     ---------------------------------------------------------------------------
     -- 9. MultiBarRight
     -- Macro: [petbattle][vehicleui][overridebar] hide; [mod:shift] show; hide
     ---------------------------------------------------------------------------
-    UpdateRoleSet(MultiBarRight, not otherUI and isShiftDown)
-
-    --apply filter
-    C_Roleset.ApplyRolesetFilters(C_Roleset.GetActiveBlockedRolesets(), C_Roleset.GetActiveAllowedRolesets())
+    UIModeUtil.SetModeActive(GetRolesetSceneName(MultiBarRight), not (not otherUI and isShiftDown))
 
 end
 
