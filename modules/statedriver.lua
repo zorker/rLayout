@@ -29,6 +29,7 @@ local function EvaluateState()
 
     local overrideBar     = C_ActionBar.HasOverrideActionBar()
     local possessBar      = C_ActionBar.IsPossessBarVisible()
+    local tempShapeshift  = C_ActionBar.HasTempShapeshiftActionBar()
 
     local isShiftDown     = IsShiftKeyDown()
     local isCtrlDown      = IsControlKeyDown()
@@ -43,7 +44,7 @@ local function EvaluateState()
     -- 1. MainActionBar
     -- Macro: [petbattle][vehicleui][overridebar] hide; [combat][mod:shift][@target,exists,nodead][@vehicle,exists][shapeshift][possessbar] show; hide
     ---------------------------------------------------------------------------
-    UpdateRoleSet(MainActionBar, not otherUI and (inCombat or isShiftDown or validTarget or vehicleExists or inShapeshift or possessBar))
+    UpdateRoleSet(MainActionBar, not otherUI and (inCombat or isShiftDown or validTarget or vehicleExists or tempShapeshift or possessBar))
 
     ---------------------------------------------------------------------------
     -- 2. StanceBar
