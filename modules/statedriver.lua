@@ -7,6 +7,8 @@ local addedRoleSets = {}
 ---------------------------------------------------------------------
 
 local function AddRoleset(frame, name)
+  if not frame then return end
+  if frame:IsProtected() and InCombatLockdown() then return end
   frame:AddRoleset(name)
   UIModeUtil.RegisterMode(name.."Scene", {
     rolesetBlocklist = {
@@ -21,6 +23,7 @@ end
 ---------------------------------------------------------------------
 
 local function GetRolesetSceneName(frame)
+  if not frame then return end
   local name = L.name..frame:GetName()
   if not addedRoleSets[name] then
     AddRoleset(frame, name)
@@ -117,6 +120,7 @@ local function LoadModuleStateDriver()
 
   local ef = CreateFrame("Frame")
 
+  ef:RegisterEvent("PLAYER_LOGIN")
   ef:RegisterEvent("PLAYER_ENTERING_WORLD")
   ef:RegisterEvent("PLAYER_REGEN_DISABLED")
   ef:RegisterEvent("PLAYER_REGEN_ENABLED")
