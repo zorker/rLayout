@@ -6,6 +6,7 @@ local A, L = ...
 
 local function UpdateRoleSet(frame, show)
   if not frame then return end
+  if frame:IsProtected() and InCombatLockdown() then return end
   if show then
     frame:AddRoleset("alwaysIncluded")
     frame:RemoveRoleset("alwaysBlocked")
