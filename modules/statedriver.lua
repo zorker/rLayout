@@ -120,8 +120,6 @@ local function LoadModuleStateDriver()
 
   local ef = CreateFrame("Frame")
 
-  ef:RegisterEvent("PLAYER_LOGIN")
-  ef:RegisterEvent("PLAYER_ENTERING_WORLD")
   ef:RegisterEvent("PLAYER_REGEN_DISABLED")
   ef:RegisterEvent("PLAYER_REGEN_ENABLED")
   ef:RegisterEvent("PLAYER_TARGET_CHANGED")
