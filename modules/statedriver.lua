@@ -64,15 +64,15 @@ local function EvaluateState()
 
   ---------------------------------------------------------------------------
   -- 2. StanceBar
-  -- Macro: [mod:alt] show; hide
+  -- Macro: [petbattle][vehicleui][overridebar] hide; [mod:alt] show; hide
   ---------------------------------------------------------------------------
-  UIModeUtil.SetModeActive(GetRolesetSceneName(StanceBar), not (isAltDown))
+  UIModeUtil.SetModeActive(GetRolesetSceneName(StanceBar), not (not otherUI and isAltDown))
 
   ---------------------------------------------------------------------------
   -- 3. BagsBar
-  -- Macro: [mod:ctrl] show; hide
+  -- Macro: [petbattle][vehicleui][overridebar] hide; [mod:ctrl] show; hide
   ---------------------------------------------------------------------------
-  UIModeUtil.SetModeActive(GetRolesetSceneName(BagsBar), not (isCtrlDown))
+  UIModeUtil.SetModeActive(GetRolesetSceneName(BagsBar), not (not otherUI and isCtrlDown))
 
   ---------------------------------------------------------------------------
   -- 4. MicroMenuContainer
