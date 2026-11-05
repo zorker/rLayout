@@ -1,5 +1,39 @@
 local A, L = ...
 
+---------------------------------------------------------------------
+-- LoadModuleStateDriver()
+---------------------------------------------------------------------
+
+local function LoadModuleStateDriver()
+
+  --fix blizzart art endcaps from showing
+  MainActionBar.EndCaps:SetAlpha(0)
+
+  --MainMenuBar
+  RegisterStateDriver(MainActionBar, "visibility", "[petbattle][vehicleui][overridebar] hide; [combat][mod:shift][@target,exists,nodead][@vehicle,exists][shapeshift][possessbar] show; hide")
+  --state driver for StanceBar
+  RegisterStateDriver(StanceBar, "visibility", "[petbattle][vehicleui][overridebar] hide; [mod:alt] show; hide")
+  --state driver for BagsBar
+  RegisterStateDriver(BagsBar, "visibility", "[petbattle][vehicleui][overridebar] hide; [mod:ctrl] show; hide")
+  --state driver for MicroMenuContainer
+  RegisterStateDriver(MicroMenuContainer, "visibility", "[mod:ctrl] show; hide")
+  --state driver for MicroButtonAndBagsBar
+  RegisterStateDriver(MicroButtonAndBagsBar, "visibility", "[mod:ctrl] show; hide")
+  --state driver for MainStatusTrackingBarContainer
+  RegisterStateDriver(MainStatusTrackingBarContainer, "visibility", "[mod:alt] show; hide")
+  --PetActionBar
+  RegisterStateDriver(PetActionBar, "visibility", "[petbattle][vehicleui][overridebar] hide; [mod:shift] show; hide")
+  --MultiBarBottomLeft - Multibar 2
+  RegisterStateDriver(MultiBarBottomLeft, "visibility", "[petbattle][vehicleui][overridebar] hide; [combat][mod:shift] show; hide")
+  --AddActionButtonFader for Multibar 4
+  RegisterStateDriver(MultiBarRight, "visibility", "[petbattle][vehicleui][overridebar] hide; [mod:shift] show; hide")
+
+end
+
+L.F.LoadModuleStateDriver = LoadModuleStateDriver
+
+--[[
+
 local addedRoleSets = {}
 
 ---------------------------------------------------------------------
@@ -139,3 +173,5 @@ local function LoadModuleStateDriver()
 end
 
 L.F.LoadModuleStateDriver = LoadModuleStateDriver
+
+]]
